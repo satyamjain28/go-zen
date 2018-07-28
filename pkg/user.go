@@ -1,9 +1,17 @@
 package pkg
 
-import "github.com/satyamjain28/go-zen/types"
+// User structure for user
+type User struct {
+	ID     int    `json:"id,omitempty"`
+	Email  string `json:"email,omitempty"`
+	Name   string `json:"name,omitempty"`
+	Active bool   `json:"active,omitempty"`
+	Role   string `json:"role,omitempty"`
+}
+
 
 // GetUser gets the user for the given user-id
-func (a Access) GetUser(userID int) (*types.User, types.ErrorResponse) {
-	var user types.User
-	return &user, types.ErrorResponse{IsError: false}
+func (a Access) GetUser(userID int) (*User, ErrorResponse) {
+	var user User
+	return &user, ErrorResponse{IsError: false}
 }
