@@ -36,3 +36,12 @@ func TestAccess_ListTickets(t *testing.T) {
 	}
 	t.Log("Test list of tickets fetched")
 }
+
+func TestAccess_DeleteTicket(t *testing.T) {
+	a := Access{UserName: "username@example.com", Password: "pass", Domain: "acme"}
+	err := a.DeleteTicket(1)
+	if err.IsError {
+		t.Fatalf("error in deleting ticket testing \n%s", err.Message)
+	}
+	t.Log("Test delete ticket successful")
+}

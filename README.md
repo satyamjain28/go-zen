@@ -1,15 +1,25 @@
 # go-zen
 
-API Wrapper for Zendesk in golang
+API Wrapper for Zendesk in golang (Still work in progress)
 
 ### Functions implemented
 
 All the function are implemented by the Access struct. 
 
+###### Users
+```
+- GetUser()
+- CreateUser()
+- ChangePassword()
+```
+###### Tickets
+```
 - GetTicket()
 - ListTickets()
-- GetUser()
-
+- ListTicketsByExternalID()
+- ListTicketsByID()
+- DeleteTicket()
+```
 
 ##### Basic Usage
 `

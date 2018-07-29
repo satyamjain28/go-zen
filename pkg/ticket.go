@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-
 )
 
 // TicketRes response structure for ticket
@@ -35,7 +34,7 @@ type Ticket struct {
 	AssigneeID     int    `json:"assignee_id,omitempty"`
 	OrganizationID int    `json:"organization_id,omitempty"`
 	GroupID        int    `json:"group_id,omitempty"`
-	CustomFields []struct {
+	CustomFields   []struct {
 		ID    int         `json:"id,omitempty"`
 		Value interface{} `json:"value,omitempty"`
 	} `json:"custom_fields,omitempty"`
@@ -44,8 +43,6 @@ type Ticket struct {
 	CreatedAt    string `json:"created_at,omitempty"`
 	UpdatedAt    string `json:"updated_at,omitempty"`
 }
-
-
 
 // GetTicket gets the ticket for the given ticket id
 func (a Access) GetTicket(ticketID int) (*Ticket, ErrorResponse) {
@@ -80,4 +77,54 @@ func (a Access) ListTickets(page int) (*[]Ticket, ErrorResponse) {
 		return &ticketRes.Tickets, ErrorResponse{Message: err.Error(), Code: 400, IsError: true}
 	}
 	return &ticketRes.Tickets, ErrorResponse{IsError: false}
+}
+
+// ListTicketsByExternalID lists the tickets sorted by the given external id
+func (a Access) ListTicketsByExternalID(externalID string) (*[]Ticket, ErrorResponse) {
+	var ticketListRes TicketListRes
+	resp, errRes := NewRequest(a, fmt.Sprintf("tickets.json?external_id=%s", externalID), "GET", nil, 200)
+	if errRes.IsError {
+		log.Printf("error in fetching the list of tickets")
+		return &ticketListRes.Tickets, errRes
+	}
+	err := json.Unmarshal(resp, &ticketListRes)
+	if err != nil {
+		log.Printf("Error in unmarshalling the response body into ticketListRes struct")
+		return &ticketListRes.Tickets, ErrorResponse{IsError: true, Code: 400, Message: err.Error()}
+	}
+	return &ticketListRes.Tickets, ErrorResponse{IsError: false}
+}
+
+// DeleteTicket deletes the ticket with given Id
+func (a Access) DeleteTicket(ticketID int) ErrorResponse {
+	_, errRes := NewRequest(a, fmt.Sprintf("tickets/%d.json", ticketID), "DELETE", nil, 204)
+	if errRes.IsError {
+		log.Printf("Error in deleting the ticket")
+		return errRes
+	}
+	return ErrorResponse{IsError: false}
+}
+
+// ListTicketsByID provides details for the given ticket IDs
+func (a Access) ListTicketsByID(ticketIDs []int) (*[]Ticket, ErrorResponse) {
+	var ticketListRes TicketListRes
+	ticketIDString := ""
+	for _, v := range ticketIDs {
+		if ticketIDString == "" {
+			ticketIDString = fmt.Sprintf("%d", v)
+		} else {
+			ticketIDString += fmt.Sprintf(",%d", v)
+		}
+	}
+	resp, errRes := NewRequest(a, fmt.Sprintf("tickets/show_many.json?ids=%s", ticketIDString), "GET", nil, 200)
+	if errRes.IsError {
+		log.Printf("error in fetching the list of given tickets")
+		return &ticketListRes.Tickets, errRes
+	}
+	err := json.Unmarshal(resp, &ticketListRes)
+	if err != nil {
+		log.Printf("Error in unmarshalling the response body into ticketListRes struct")
+		return &ticketListRes.Tickets, ErrorResponse{IsError: true, Code: 400, Message: err.Error()}
+	}
+	return &ticketListRes.Tickets, ErrorResponse{IsError: false}
 }
